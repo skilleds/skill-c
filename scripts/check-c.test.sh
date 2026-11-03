@@ -98,6 +98,18 @@ caso ubsan-que-continua 1 "IMPRIME e CONTINUA" 'CFLAGS = -std=c17 -O2 -Wall -Wex
 int main(void) { return 0; }
 FIX
 
+echo "== flags: comentário não conta; workflow conta (P1-6) =="
+d="$TMP/flag-comentario"; mkdir -p "$d/src"; echo 'int main(void) { return 0; }' > "$d/src/alvo.c"
+printf '%s\n' 'CFLAGS = -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all' '# -fsanitize=address (comentado: NÃO é sanitizer ligado)' > "$d/Makefile"
+saida="$(bash "$G" "$d" 2>&1)"; rc=$?
+if [ "$rc" = 1 ] && grep -qF "fsanitize=address" <<<"$saida"; then echo "  ✔ flag só em comentário reprova"; ok=$((ok+1))
+else echo "  ✖ flag só em comentário: exit $rc (esperado 1)"; fail=$((fail+1)); fi
+d="$TMP/flag-workflow"; mkdir -p "$d/src" "$d/.github/workflows"; echo 'int main(void) { return 0; }' > "$d/src/alvo.c"
+printf '%s\n' 'run: cmake -S . -B build -DCMAKE_C_FLAGS="-std=c17 -O2 -Wall -Wextra -Werror -Wconversion -D_FORTIFY_SOURCE=3 -fsanitize=address,undefined -fno-sanitize-recover=all"' > "$d/.github/workflows/ci.yml"
+saida="$(bash "$G" "$d" 2>&1)"; rc=$?
+if ! grep -qE "nenhum alvo com|sem \`-Werror\`|sem \`-Wall\`" <<<"$saida"; then echo "  ✔ flags passadas só pelo workflow são lidas"; ok=$((ok+1))
+else echo "  ✖ flags do workflow ignoradas (falso vermelho)"; sed 's/^/      /' <<<"$saida"; fail=$((fail+1)); fi
+
 echo "== nada para verificar =="
 d="$TMP/vazio"; mkdir -p "$d"; echo "# prosa" > "$d/LEIA.md"
 saida="$(bash "$G" "$d" 2>&1)"; rc=$?

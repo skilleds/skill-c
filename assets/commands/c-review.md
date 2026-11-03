@@ -15,9 +15,8 @@ encaminhamento.
 
 ```bash
 bash .claude/skills/schematize-c/scripts/check-c.sh .     # lê o código E o build
-make test-asan      # a suíte sanitizada — o gate NÃO substitui isto
-make test-ubsan
-make fuzz           # parser com libFuzzer/AFL++
+ctest --test-dir build --output-on-failure   # suíte sanitizada (build com -fsanitize=address,undefined, como no template de CI) — o gate NÃO substitui isto
+for f in tests/fuzz/*.c; do clang -g -O1 -fsanitize=fuzzer,address,undefined "$f" src/*.c -Isrc -o fuzz.bin && ./fuzz.bin -max_total_time=60 tests/corpus; done   # parser com libFuzzer
 ```
 
 `0` passa · `1` reprova · `2` **nada para verificar** (não é aprovação).
