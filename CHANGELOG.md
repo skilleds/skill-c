@@ -3,6 +3,13 @@
 Todas as mudanças relevantes deste pacote, no formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 com versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+### Alterado
+- Template de CI sem `pull_request`/`push` em branch: `workflow_dispatch` + `push: tags [hml-*, v*]`, `concurrency` com `cancel-in-progress` e passo `check-ci-triggers.sh` (piso 27); DoD/exemplos que diziam "CI verde no PR" agora dizem gate local + CI remoto só antes do hml.
+- Bloco "Herda os pisos 22–29" em `SKILL.md` e `assets/CLAUDE.md`.
+- `check-c.sh`: lê também `*.cmake`, `CMakePresets.json` e `.github/workflows/*.yml` (flags do template passam a contar); comentário `# -fsanitize=...` não conta; aceita `-fsanitize=address,undefined`; casos de teste novos.
+- Template: roda `check-c.sh`, `clang-tidy -p build` (compile_commands), flags de hardening do `piso.md` §3, job TSan e job de fuzz; `c-review` sem alvos `make` inexistentes.
+
 ## [0.4.0] — 2026-10-14
 Description reduzida para o orçamento de listagem do catálogo; sem mudança de piso.
 
