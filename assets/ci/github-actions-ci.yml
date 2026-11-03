@@ -1,7 +1,16 @@
 # CI de C (schematize-c). Copie para .github/workflows/ci.yml e ajuste o alvo.
 # Actions pinadas por SHA completo; troque por bump deliberado (o comentario diz a versao).
 name: ci
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  push:
+    tags: ["hml-*", "v*"]
+
+# Piso 27: CI remoto NAO roda por commit nem por PR. O gate por commit e LOCAL (scripts/pre-commit);
+# este workflow roda so antes de promover a hml (tag hml-*), em release (tag v*) ou sob pedido (dispatch).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
